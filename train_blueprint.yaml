@@ -1,0 +1,120 @@
+---
+title: NCF Recommender Train
+version: 1.0.0 
+description: Train and deploy a neural network based recommender system
+
+author: "cnvrg"
+author_email: "info@cnvrg.io"
+
+tags:
+  - training
+
+tasks:
+  - title: S3 Connector
+    top: 300
+    left: 200
+
+    # Type must be according to the flow task conventions (data, exec, deploy)
+    type: exec
+
+    # The library data
+    library: s3-connector
+    library_version: 1.0.0
+    # The flattened library parameters (in this case we have training library)
+    command: python s3-connector.py
+
+    requirements:
+      cpu: 3.5
+      memory: 7
+      gpu: 0
+      hpu: 0
+
+    image: cnvrg:v5.0
+    language: python3
+
+    # The "arguments" property changes to "params", rest remains the same.
+    # Params in the blueprint yaml can be used to override the arguments in the library.
+    params:
+      - key: endpoint
+        type: 'categorical'
+        values:
+          - 'http://s3.amazonaws.com download'
+      - key: bucketname
+        type: 'categorical'
+        values:
+          - 'libhub-readme'
+      - key: localdir
+        type: 'categorical'
+        values:
+          - '/cnvrg'
+      - key: prefix
+        type: 'categorical'
+        values:
+          - 'recommenders_data/'
+
+  - title: Train
+    top: 300
+    left: 400
+    
+    type: exec
+    
+    library: ncf-recommender-train
+    library_version: 1.0.0
+    
+    command: python3 train.py
+    
+    requirements: 
+      cpu: 4
+      memory: 32
+      gpu: 1
+      hpu: 0
+      
+    image: cnvrg:v5.0
+    language: python3
+  
+    params:
+    - key: filename
+      type: 'categorical'
+      values: 
+        - '/input/s3_connector/recommenders_data/ncf_data.csv'
+      
+  - title: Inference
+    top: 400
+    left: 500
+    
+    type: deploy
+    
+    library: ncf-recommender-inference
+    library-version: 1.0.0
+    
+    kind: webservice 
+    
+    requirements: 
+      cpu: 3.5
+      memory: 7.5
+      gpu: 0
+      hpu: 0
+      
+    image: cnvrg:v5.0
+    language: python3
+    gunicorn_config:
+    - key: workers
+      value: '1'
+    accept_files: false
+  
+    file_name: predict.py 
+    function_name: predict
+    prep_file: '' 
+    prep_function: '' 
+    input_example:
+      user_id: 2
+    input_schema:
+      user_id: number
+    output_schema:
+      recommendations: number[]
+
+relations:
+- from: S3 Connector
+  to: Train
+- from: Train
+  to: Inference

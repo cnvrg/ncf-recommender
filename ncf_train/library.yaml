@@ -1,0 +1,29 @@
+---
+title: NCF Recommender Train
+version: 1.0.0
+icon: python
+
+tags:
+  - training
+
+command: python3 train.py
+
+requirements:
+  cpu: 4
+  memory: 32
+  gpu: 1
+  hpu: 0
+
+image: cnvrg:v5.0
+
+language: python3
+
+arguments:
+  - key: filename
+    type: 'discrete'
+    values:
+      - 'data.csv'
+  - key: epochs
+    type: 'discrete'
+    values:
+      - '5'
