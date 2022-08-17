@@ -19,14 +19,22 @@ parser = argparse.ArgumentParser(description="""Preprocessor""")
 parser.add_argument('-f', '--filename', action='store', dest='filename', required=True,
                     help="""string. csv recommender data""")
 
-parser.add_argument('-r', '--epochs', action='store', dest='epochs', default=5,
+parser.add_argument('--epochs', action='store', dest='epochs', default=5,
                     help="""int number of epochs""")
+
+parser.add_argument('--batch_size', action='store', dest='batch_size', default=512,
+                    help="""int batch size""")
+
+parser.add_argument('--output_model_file', action='store', dest='output_model_file', default='model.pt',
+                    help="""string. filename for saving the model""")
 
 cnvrg_workdir = os.environ.get('CNVRG_WORKDIR', '/cnvrg')
 
 args = parser.parse_args()
 filename = args.filename
-epochs = args.epochs
+epochs = int(args.epochs)
+batch_size = int(args.batch_size)
+output_model_file = args.output_model_file
 
 ratings = pd.read_csv(filename)
 ratings['timestamp'] = np.random.randint(0, 50000, size=len(ratings))
@@ -49,12 +57,11 @@ else:
 eval_metrics_whole = pd.DataFrame(columns=['user_id', 'rmse', 'precision', 'recall'])
 
 train_ratings.loc[:, 'rating'] = 1
-
 num_users = ratings['user_id'].max() + 1
 num_items = ratings['item_id'].max() + 1
 all_item_ids = ratings['item_id'].unique()
 
-model = ncf.NCF(num_users, num_items, train_ratings, all_item_ids)
+model = ncf.NCF(num_users, num_items, train_ratings, all_item_ids, batch_size)
 
 trainer = pl.Trainer(max_epochs=int(epochs), gpus=1, reload_dataloaders_every_n_epochs=True, enable_checkpointing=False)
 recommend_whole = pd.DataFrame(columns=['user_id', 'item_id', 'score'])
@@ -86,4 +93,4 @@ for (u, i) in test_user_item_set:
         recall.append(0)
 
 print("The hit ratio @ 10 is {:.2f}".format(np.average(recall)))
-torch.save(model, cnvrg_workdir + "/model.pt")
+torch.save(model, cnvrg_workdir + "/" + output_model_file)

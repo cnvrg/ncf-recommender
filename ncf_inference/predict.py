@@ -28,11 +28,10 @@ model = torch.load(model_path)
 
 print(items_path)
 items_file = open(items_path)
+items_list = json.load(items_file)
 
 def predict(data):
     user_num = int(data['user_id'])
-    model.eval()
-    items_list = json.load(items_file)
     predicted_labels = np.squeeze(model(torch.tensor([user_num]*len(items_list)),
                                         torch.tensor(items_list)).detach().numpy())
     top5_items = [items_list[i] for i in np.argsort(predicted_labels)[::-1][0:5].tolist()]

@@ -69,7 +69,7 @@ tasks:
       gpu: 1
       hpu: 0
       
-    image: cnvrg:v5.0
+    image: pytorchlightning/pytorch_lightning:base-cuda-py3.9-torch1.10
     language: python3
   
     params:
@@ -77,7 +77,21 @@ tasks:
       type: 'categorical'
       values: 
         - '/input/s3_connector/recommenders_data/ncf_data.csv'
-      
+    - key: epochs
+      type: 'categorical'
+      values:
+        - '5'
+    - key: batch_size
+      type: 'categorical'
+      values:
+        - '512'
+    - key: output_model_file
+      type: 'categorical'
+      values:
+        - 'model.pt'
+
+
+
   - title: Inference
     top: 400
     left: 500
