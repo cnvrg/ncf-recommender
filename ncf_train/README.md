@@ -8,7 +8,8 @@ This library is used to retrain the neural network on a custom dataset.
 As a result, we get a model file that can be used to recommend items to users. 
 ### Flow
 - The user has to upload the training dataset which is a csv file that includes 2 columns: user_id and item_id.
-- The model is trained on the dataset and a model file is produced..
+ You can also train the model on weighted data. To do so, the training data should include an extra colum named 'weight'.
+- The model is trained on the dataset and a model file is produced.
 
 ### Inputs
 - `--data` refers to the training dataset.

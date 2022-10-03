@@ -11,6 +11,7 @@ import json
 import warnings
 import math
 import os
+from pathlib import Path
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 logging.set_verbosity_error()
@@ -45,6 +46,21 @@ ratings['rank_latest'] = ratings.groupby(['user_id'])['timestamp'].rank(method='
 
 train_ratings = ratings[ratings['rank_latest'] != 1]
 test_ratings = ratings[ratings['rank_latest'] == 1]
+print(train_ratings.dtypes)
+
+# If we have a weight column - duplicate each row x its weight times to make it have more/less impact on the model.
+if 'weight' in ratings.columns:
+    print(len(train_ratings))
+    added_lines = pd.DataFrame()
+    for row in range(len(train_ratings)):
+        for i in range(int(train_ratings.iloc[row]['weight'])):
+            x = train_ratings.iloc[row].to_frame()
+            added_lines = pd.concat([added_lines, x.T])
+    added_lines.user_id = added_lines.user_id.astype(int)
+    added_lines.item_id = added_lines.item_id.astype(int)
+    train_ratings = pd.concat([train_ratings, added_lines])
+    print(len(train_ratings))
+
 
 # drop columns that we no longer  need
 if 'rating' in ratings.columns:
@@ -60,6 +76,11 @@ train_ratings.loc[:, 'rating'] = 1
 num_users = ratings['user_id'].max() + 1
 num_items = ratings['item_id'].max() + 1
 all_item_ids = ratings['item_id'].unique()
+
+print(type(num_items))
+print(type(num_users))
+print(type(all_item_ids))
+print(type(batch_size))
 
 model = ncf.NCF(num_users, num_items, train_ratings, all_item_ids, batch_size)
 

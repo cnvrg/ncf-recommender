@@ -2,7 +2,7 @@
 You can use this blueprint to train a custom neural network recommender system.  
 Please note that this blueprint requires 1 GPU, 4 CPU and 32 GB memory to run.   
 In order to train this model with your data, you would need to provide one folder located in s3:  
-* The folder needs to contain a file csv that includes 2 columns: user_id and item_id.  
+* The folder needs to contain a file csv that includes 2 columns: user_id and item_id. You can also train the model on weighted data. To do so, the training data should include an extra colum named 'weight'.
 
 1. Click on Use Blueprint button
 
