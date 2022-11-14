@@ -23,10 +23,10 @@ importlib-resources==5.4.0
 joblib==1.1.0
 Markdown==3.3.7
 multidict==5.2.0
-numpy==1.19.5
+numpy
 oauthlib==3.2.0
 packaging==21.3
-pandas==1.1.5
+pandas
 protobuf==3.19.4
 pyasn1==0.4.8
 pyasn1-modules==0.2.8

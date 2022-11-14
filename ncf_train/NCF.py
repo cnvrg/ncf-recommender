@@ -46,4 +46,5 @@ class NCF(pl.LightningModule):
 
     def train_dataloader(self):
         return DataLoader(td.TrainDataset(self.ratings, self.all_item_ids),
-                          batch_size=self.batch_size, num_workers=4)
+                          batch_size=self.batch_size, num_workers=0)
+                          
