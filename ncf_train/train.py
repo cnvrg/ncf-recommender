@@ -63,7 +63,7 @@ def get_data_attributes(ratings, train_ratings):
     all_item_ids = ratings['item_id'].unique()
     return train_ratings, num_users, num_items, all_item_ids
 
-def fit_model():
+def fit_model(num_users, num_items, train_ratings, all_item_ids, batch_size, epochs):
     ''' Calls the training function  '''
     model = ncf.NCF(num_users, num_items, train_ratings, all_item_ids, batch_size)
     trainer = pl.Trainer(max_epochs=int(epochs), reload_dataloaders_every_n_epochs=True, enable_checkpointing=False, log_every_n_steps=1)
@@ -82,7 +82,7 @@ def get_test_attributes(test_ratings, ratings):
     user_interacted_items = ratings.groupby('user_id')['item_id'].apply(list).to_dict()
     return test_user_item_set, user_interacted_items
 
-def get_recall(test_user_item_set, user_interacted_items):
+def get_recall(test_user_item_set, user_interacted_items, model):
     ''' Calculates average recall '''
     recall = []
     for (u, i) in test_user_item_set:
@@ -142,9 +142,9 @@ if __name__ == "__main__":
     # eval_metrics_whole = pd.DataFrame(columns=['user_id', 'rmse', 'precision', 'recall']) - is this used ?
  
     train_ratings, num_users, num_items, all_item_ids = get_data_attributes(ratings, train_ratings)
-    model, trainer = fit_model()
+    model, trainer = fit_model(num_users, num_items, train_ratings, all_item_ids, batch_size, epochs)
     test_user_item_set, user_interacted_items = get_test_attributes(test_ratings, ratings)
 
-    average_recall = get_recall(test_user_item_set, user_interacted_items)
+    average_recall = get_recall(test_user_item_set, user_interacted_items, model)
     print("The hit ratio @ 10 is {:.2f}".format(average_recall))
     save_pt_model(file_dir, output_model_file)
