@@ -47,7 +47,6 @@ six==1.16.0
 tensorboard==2.9.0
 tensorboard-data-server==0.6.1
 tensorboard-plugin-wit==1.8.1
-tokenizers==0.12.1
 torch==1.10.2
 torchmetrics==0.8.2
 tqdm==4.64.0
@@ -58,3 +57,4 @@ Werkzeug==2.0.3
 yarl==1.7.2
 zipp==3.6.0
 msrest==0.6.21
+coverage
