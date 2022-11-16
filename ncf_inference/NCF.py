@@ -28,7 +28,7 @@ import TrainDataset as td
 
 class NCF(pl.LightningModule):
 
-    def __init__(self, num_users, num_items, ratings, all_item_ids):
+    def __init__(self, num_users, num_items, ratings, all_item_ids, num_workers):
         super().__init__()
         self.user_embedding = nn.Embedding(num_embeddings=num_users, embedding_dim=8)
         self.item_embedding = nn.Embedding(num_embeddings=num_items, embedding_dim=8)
@@ -37,6 +37,7 @@ class NCF(pl.LightningModule):
         self.output = nn.Linear(in_features=32, out_features=1)
         self.ratings = ratings
         self.all_item_ids = all_item_ids
+        self.num_workers = num_workers
 
     def forward(self, user_input, item_input):
         # Pass through embedding layers
@@ -66,4 +67,4 @@ class NCF(pl.LightningModule):
 
     def train_dataloader(self):
         return DataLoader(td.TrainDataset(self.ratings, self.all_item_ids),
-                          batch_size=512, num_workers=4)
+                          batch_size=512, num_workers=self.num_workers)
