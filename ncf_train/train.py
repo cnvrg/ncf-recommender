@@ -82,7 +82,7 @@ def get_test_attributes(test_ratings, ratings):
     user_interacted_items = ratings.groupby('user_id')['item_id'].apply(list).to_dict()
     return test_user_item_set, user_interacted_items
 
-def get_recall(test_user_item_set, user_interacted_items, model):
+def get_recall(test_user_item_set, user_interacted_items, all_item_ids, model):
     ''' Calculates average recall '''
     recall = []
     for (u, i) in test_user_item_set:
@@ -93,7 +93,6 @@ def get_recall(test_user_item_set, user_interacted_items, model):
 
         predicted_labels = np.squeeze(model(torch.tensor([u] * 100),
                                             torch.tensor(test_items)).detach().numpy())
-
         top10_items = [test_items[i] for i in np.argsort(predicted_labels)[::-1][0:10].tolist()]
 
         if i in top10_items:
@@ -102,7 +101,7 @@ def get_recall(test_user_item_set, user_interacted_items, model):
             recall.append(0)
     return np.average(recall)
 
-def save_pt_model(file_dir, output_model_file):
+def save_pt_model(model, file_dir, output_model_file):
     torch.save(model, file_dir + "/" + output_model_file)
 
 if __name__ == "__main__":
@@ -145,6 +144,6 @@ if __name__ == "__main__":
     model, trainer = fit_model(num_users, num_items, train_ratings, all_item_ids, batch_size, epochs)
     test_user_item_set, user_interacted_items = get_test_attributes(test_ratings, ratings)
 
-    average_recall = get_recall(test_user_item_set, user_interacted_items, model)
+    average_recall = get_recall(test_user_item_set, user_interacted_items, all_item_ids, model)
     print("The hit ratio @ 10 is {:.2f}".format(average_recall))
-    save_pt_model(file_dir, output_model_file)
+    save_pt_model(model, file_dir, output_model_file)

@@ -4,7 +4,7 @@ import os
 import sys
 import json
 import shutil
-from train import add_timestamp_col, split_train_test, augment_data, drop_colums, get_data_attributes, fit_model, get_test_attributes, get_recall
+from train import add_timestamp_col, split_train_test, augment_data, drop_colums, get_data_attributes, fit_model, get_test_attributes, get_recall, save_pt_model
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 class test_train(unittest.TestCase):
@@ -13,7 +13,7 @@ class test_train(unittest.TestCase):
         # Create data for testing and define data parameters
         df = pandas.DataFrame({ 
             'user_id': [0,0,0,1,1,1,2,2,2,3,3,3,4,4,4],
-            'item_id': [0,1,2,3,2,5,1,3,5,2,4,6,1,5,3],
+            'item_id': [0,0,0,1,1,1,2,2,2,3,3,3,4,4,4],
             'weight':  [3,20,2,3,20,2,3,20,2,3,20,2,3,20,2]
         })
         self.test_data_len = len(set(df['user_id']))
@@ -21,6 +21,8 @@ class test_train(unittest.TestCase):
         self.test_num_users = len(set(df['user_id']))
         self.test_num_items = len(set(df['item_id']))
         self.test_all_item_ids = list(set(df['item_id']))
+        self.epochs = 100
+        self.batch_size = 512 
 
         # Make a Unit-testing directory
         self.unittest_dir = "unit_test_data"
@@ -41,6 +43,15 @@ class test_train(unittest.TestCase):
         self.drop_train_ratings, self.drop_test_ratings = drop_colums(self.ratings, self.train_ratings, self.test_ratings)
         # Get data attributes and final data processing
         self.final_train_ratings, self.num_users, self.num_items, self.all_item_ids = get_data_attributes(self.ratings, self.train_ratings)
+        # Train the model on the above defined data
+        self.model, self.trainer = fit_model(self.num_users, self.num_items, self.final_train_ratings, self.all_item_ids, self.batch_size, self.epochs)
+        # Get test data attributes
+        self.test_user_item_set, self.user_interacted_items = get_test_attributes(self.test_ratings, self.ratings)
+        # Get the average recall for the model
+        self.avg_recall = get_recall(self.test_user_item_set, self.user_interacted_items, self.all_item_ids, self.model)
+        # Save the trained model
+        self.output_model_file = 'model.pt'
+        save_pt_model(self.model, self.data_path, self.output_model_file)
 
     @classmethod
     def tearDownClass(self):
@@ -57,11 +68,12 @@ class test_train(unittest.TestCase):
         )
     
     def test_json_item_list(self):
+        test_item_list = [i for i in range(self.num_users)]
         with open(self.data_path + '/' + 'items_list.json', 'r') as json_file:
             item_list = json.load(json_file)
         self.assertListEqual(
             item_list,
-            [0, 1, 2, 3, 4, 5, 6]
+            test_item_list
         )
 
     def test_train_test_len(self):
@@ -109,3 +121,21 @@ class test_train(unittest.TestCase):
         self.assertEqual(self.num_users, self.test_num_users)
         self.assertEqual(self.num_items, self.test_num_items)
         self.assertListEqual(sorted(list(self.all_item_ids)), self.test_all_item_ids)
+
+    def test_model_trainer(self):
+        self.assertTrue(
+            self.model
+        )
+        self.assertTrue(
+            self.trainer
+        )
+
+    def test_average_recall_value(self):
+        self.assertTrue(
+            0.75 <= self.avg_recall <= 1.0
+        )
+
+    def test_model_file_exists(self):
+        self.assertTrue(
+            os.path.isfile(self.data_path + '/' + self.output_model_file)
+        )
