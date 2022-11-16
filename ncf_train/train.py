@@ -63,9 +63,9 @@ def get_data_attributes(ratings, train_ratings):
     all_item_ids = ratings['item_id'].unique()
     return train_ratings, num_users, num_items, all_item_ids
 
-def fit_model(num_users, num_items, train_ratings, all_item_ids, batch_size, epochs):
+def fit_model(num_users, num_items, train_ratings, all_item_ids, batch_size, epochs, num_workers):
     ''' Calls the training function  '''
-    model = ncf.NCF(num_users, num_items, train_ratings, all_item_ids, batch_size)
+    model = ncf.NCF(num_users, num_items, train_ratings, all_item_ids, batch_size, num_workers)
     trainer = pl.Trainer(max_epochs=int(epochs), reload_dataloaders_every_n_epochs=True, enable_checkpointing=False, log_every_n_steps=1)
     # recommend_whole = pd.DataFrame(columns=['user_id', 'item_id', 'score'])
     trainer.fit(model)
@@ -123,7 +123,10 @@ if __name__ == "__main__":
                         help="""string. filename for saving the model""")
 
     parser.add_argument('--local_dir', action='store', dest='local_dir', default=cnvrg_workdir,
-                        help="""string. filename for saving the model""")
+                        help="""string. local directory to store the data to """)
+
+    parser.add_argument('--num_workers', action='store', dest='num_workers', default=4,
+                        help="""string. num_workers paramter for pytorch model """)
 
     args = parser.parse_args()
     filename = args.filename
@@ -131,6 +134,7 @@ if __name__ == "__main__":
     batch_size = int(args.batch_size)
     output_model_file = args.output_model_file
     file_dir = args.local_dir
+    num_workers = int(args.num_workers)
 
     ratings = add_timestamp_col(file_dir, filename)
     train_ratings, test_ratings = split_train_test(ratings)
@@ -141,7 +145,7 @@ if __name__ == "__main__":
     # eval_metrics_whole = pd.DataFrame(columns=['user_id', 'rmse', 'precision', 'recall']) - is this used ?
  
     train_ratings, num_users, num_items, all_item_ids = get_data_attributes(ratings, train_ratings)
-    model, trainer = fit_model(num_users, num_items, train_ratings, all_item_ids, batch_size, epochs)
+    model, trainer = fit_model(num_users, num_items, train_ratings, all_item_ids, batch_size, epochs, num_workers)
     test_user_item_set, user_interacted_items = get_test_attributes(test_ratings, ratings)
 
     average_recall = get_recall(test_user_item_set, user_interacted_items, all_item_ids, model)

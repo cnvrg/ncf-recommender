@@ -31,6 +31,7 @@ class test_train(unittest.TestCase):
         return True
 
     def test_data_labels(self):
+        ''' Checks if the get_data function produces the correct labels '''
         self.assertTrue(
             self.data_labels_helper()
         )

@@ -22,7 +22,8 @@ class test_train(unittest.TestCase):
         self.test_num_items = len(set(df['item_id']))
         self.test_all_item_ids = list(set(df['item_id']))
         self.epochs = 100
-        self.batch_size = 512 
+        self.batch_size = 512
+        self.num_workers = 0
 
         # Make a Unit-testing directory
         self.unittest_dir = "unit_test_data"
@@ -44,7 +45,7 @@ class test_train(unittest.TestCase):
         # Get data attributes and final data processing
         self.final_train_ratings, self.num_users, self.num_items, self.all_item_ids = get_data_attributes(self.ratings, self.train_ratings)
         # Train the model on the above defined data
-        self.model, self.trainer = fit_model(self.num_users, self.num_items, self.final_train_ratings, self.all_item_ids, self.batch_size, self.epochs)
+        self.model, self.trainer = fit_model(self.num_users, self.num_items, self.final_train_ratings, self.all_item_ids, self.batch_size, self.epochs, self.num_workers)
         # Get test data attributes
         self.test_user_item_set, self.user_interacted_items = get_test_attributes(self.test_ratings, self.ratings)
         # Get the average recall for the model
@@ -58,16 +59,19 @@ class test_train(unittest.TestCase):
         shutil.rmtree(self.data_path)
 
     def test_return_df(self):
+        ''' Checks if pandas dataframe is retuned '''
         self.assertIsInstance(
             self.ratings, pandas.core.frame.DataFrame
         )
 
     def test_add_timestamp_col(self):
+        ''' Checks if the timestamp column is added to the data '''
         self.assertTrue(
             'timestamp' in self.ratings.columns
         )
     
     def test_json_item_list(self):
+        ''' Checks the content of 'items_list.json' '''
         test_item_list = [i for i in range(self.num_users)]
         with open(self.data_path + '/' + 'items_list.json', 'r') as json_file:
             item_list = json.load(json_file)
@@ -77,19 +81,25 @@ class test_train(unittest.TestCase):
         )
 
     def test_train_test_len(self):
+        ''' Checks the length of train, test dataset '''
         self.assertEqual(
             len(self.train_ratings), self.train_data_len
         )
         self.assertEqual(
             len(self.test_ratings), self.test_data_len
         )
-    
+
     def test_augment_data_len(self):
+        ''' Checks if data has been augmented '''
         self.assertTrue(
             len(self.augment_train_ratings) > len(self.train_ratings)
         )
 
     def test_drop_columns(self):
+        '''
+            Checks if un-necessary columns have been droped in train, test dataset
+            Checks if the correct columns are present in the train, test dataset
+        '''
         self.assertEqual(
             len(self.drop_train_ratings.columns),
             (2 or 3)
@@ -118,11 +128,13 @@ class test_train(unittest.TestCase):
             )
 
     def test_data_attributes(self):
+        ''' Checks if data attributes are extracted correctly based on the data defined in setUpClass  '''
         self.assertEqual(self.num_users, self.test_num_users)
         self.assertEqual(self.num_items, self.test_num_items)
         self.assertListEqual(sorted(list(self.all_item_ids)), self.test_all_item_ids)
 
     def test_model_trainer(self):
+        ''' Checks if model and trainer objects are returned '''
         self.assertTrue(
             self.model
         )
@@ -131,11 +143,13 @@ class test_train(unittest.TestCase):
         )
 
     def test_average_recall_value(self):
+        ''' Checks the average recall value returned and if it falls within the below specified interval based on data defined in setUpClass '''
         self.assertTrue(
             0.75 <= self.avg_recall <= 1.0
         )
 
     def test_model_file_exists(self):
+        ''' Checks if the model.pt filed is saved '''
         self.assertTrue(
             os.path.isfile(self.data_path + '/' + self.output_model_file)
         )
