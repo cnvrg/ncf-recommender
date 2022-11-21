@@ -10,6 +10,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 class test_train(unittest.TestCase):
     @classmethod
     def setUpClass(self):
+        ''' Function used to set up test dataframe and unittesting parameters '''
         # Create data for testing and define data parameters
         df = pandas.DataFrame({ 
             'user_id': [0,0,0,1,1,1,2,2,2,3,3,3,4,4,4],
@@ -56,6 +57,7 @@ class test_train(unittest.TestCase):
 
     @classmethod
     def tearDownClass(self):
+        ''' Clean up function '''
         shutil.rmtree(self.data_path)
 
     def test_return_df(self):
@@ -132,15 +134,6 @@ class test_train(unittest.TestCase):
         self.assertEqual(self.num_users, self.test_num_users)
         self.assertEqual(self.num_items, self.test_num_items)
         self.assertListEqual(sorted(list(self.all_item_ids)), self.test_all_item_ids)
-
-    def test_model_trainer(self):
-        ''' Checks if model and trainer objects are returned '''
-        self.assertTrue(
-            self.model
-        )
-        self.assertTrue(
-            self.trainer
-        )
 
     def test_average_recall_value(self):
         ''' Checks the average recall value returned and if it falls within the below specified interval based on data defined in setUpClass '''
