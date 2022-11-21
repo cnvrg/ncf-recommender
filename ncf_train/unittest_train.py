@@ -48,7 +48,7 @@ class test_train(unittest.TestCase):
         # Train the model on the above defined data
         self.model, self.trainer = fit_model(self.num_users, self.num_items, self.final_train_ratings, self.all_item_ids, self.batch_size, self.epochs, self.num_workers)
         # Get test data attributes
-        self.test_user_item_set, self.user_interacted_items = get_test_attributes(self.test_ratings, self.ratings)
+        self.test_user_item_set, self.user_interacted_items = get_test_attributes(self.drop_test_ratings, self.ratings)
         # Get the average recall for the model
         self.avg_recall = get_recall(self.test_user_item_set, self.user_interacted_items, self.all_item_ids, self.model)
         # Save the trained model
