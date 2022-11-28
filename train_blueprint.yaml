@@ -22,7 +22,7 @@
 ---
 title: NCF Recommender Train
 version: 1.0.0 
-description: Train and deploy a neural network based recommender system
+description: Train a custom neural-network recommender model, and deploy and endpoint, which can recommend similar items to customers according to their behaviors.
 
 author: "cnvrg"
 author_email: "info@cnvrg.io"
