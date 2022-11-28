@@ -28,4 +28,4 @@ jobs:
           pip install -r ${TEST_DIRECTORY}/requirements.txt
       - name: Execute unit tests
         run: |
-          find ./${TEST_DIRECTORY} -name unittest*.py -exec python3 -m unittest -v {} \;
+          find ./${TEST_DIRECTORY} -name unittest*.py -exec python3 -m unittest {} \;
