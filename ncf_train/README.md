@@ -12,15 +12,24 @@ As a result, we get a model file that can be used to recommend items to users.
 - The model is trained on the dataset and a model file is produced.
 
 ### Inputs
-- `--data` refers to the training dataset.
-- `--epochs` refers to the number of epochs in the train process.
+- `--filename` refers to the training dataset (required=True).
+- `--epochs` refers to the number of epochs in the train process (required=False).
+- `--batch_size` refers to the batch size in the train process (required=False).
+- `--output_model_file` refers to the filename for saving the model (required=False).
+- `--local_dir` refers to the local directory to store the data to (required=False).
+- `--num_workers` refers to the num_workers paramter for pytorch model (required=False).
+
+For more information regarding input arguments:
+```
+python3 train.py --help
+```
 
  
 ## How to run
 ```
-python3 train.py --data <name of data file> --epochs <number of epochs>
+python3 train.py --filename <name of data file> --epochs <number of epochs>
 ```
 Example:
 ```
-python3 train.py --data 'data.csv' --epochs 5
+python3 train.py --filename 'data.csv' --epochs 5
 ```
