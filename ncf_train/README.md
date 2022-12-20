@@ -17,7 +17,7 @@ As a result, we get a model file that can be used to recommend items to users.
 - `--batch_size` refers to the batch size in the train process (required=False).
 - `--output_model_file` refers to the filename for saving the model (required=False).
 - `--local_dir` refers to the local directory to store the data to (required=False).
-- `--num_workers` refers to the num_workers paramter for pytorch model (required=False).
+- `--num_workers` refers to the num_workers parameter for pytorch model (required=False).
 
 For more information regarding input arguments:
 ```
